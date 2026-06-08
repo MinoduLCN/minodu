@@ -153,6 +153,9 @@ npm install
 # build and start services
 sudo npm run docker:start
 
+# set user right for data dir:
+chown -R pi:pi data
+
 # once the database is running, sync online database to local one and update embeddings
 (cd tools/sync && poetry install)
 npm run sync:database && npm run sync:rag
