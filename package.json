@@ -12,7 +12,7 @@
     "docker:status": "docker compose ps",
     "docker:stats": "docker compose stats",
     "sync": "rm -f ./tools/sync/download.zip && npm run sync:update_backup && npm run sync:database && npm run sync:rag",
-    "sync:update_backup": "curl -X GET http://minodu.chickenkiller.com:3000/backup/create",
+    "sync:update_backup": "curl -X GET http://137.184.46.216:3000/backup/create",
     "sync:database": "npx dotenv -- sh -c 'poetry --directory tools/sync run python sync_database.py http://minodu.chickenkiller.com:3000/files/minodu_backend_backup.zip --destination=../../data/minodu-backend --user=$MYSQL_USER --password=$MYSQL_PASSWORD'",
     "sync:rag": "poetry --directory tools/sync run python sync_rag.py http://localhost/api/backend/v1/posts/ minodu-minodu-ai-services-1"
   },
