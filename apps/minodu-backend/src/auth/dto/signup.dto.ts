@@ -8,8 +8,8 @@ export class SignUpDto {
   fullName: string;
   
   @ApiProperty({ type: String, name: 'phone', description: "User phone" })
-  @IsPhoneNumber('TG', { message: 'phone must be a valid phone number' })
   @IsNotEmpty()
+  @IsNumberString()
   phone: string;
 
   @ApiProperty({ type: String, name: 'gender', description: "User gender" })
