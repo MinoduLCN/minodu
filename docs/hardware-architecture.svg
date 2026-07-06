@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680" font-family="-apple-system, Helvetica, Arial, sans-serif" font-size="12">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#555"/>
+    </marker>
+    <style>
+      .tier { fill: #f7f7fb; stroke: #c9c9d6; stroke-dasharray: 4 3; }
+      .tier-label { font-size: 11px; fill: #6b6b7a; font-weight: 600; letter-spacing: 1px; }
+      .node { stroke: #2b2b3b; stroke-width: 1.2; }
+      .sensor   { fill: #c8f0c8; }
+      .board    { fill: #b8dcff; }
+      .server   { fill: #ffe6b8; }
+      .client   { fill: #f2c8d8; }
+      .infra    { fill: #e0d4ff; }
+      .title { font-size: 13px; font-weight: 700; fill: #1a1a2b; }
+      .sub   { font-size: 10px; fill: #444; }
+      .edge  { stroke: #555; stroke-width: 1.2; fill: none; marker-end: url(#arrow); }
+      .edge-dashed { stroke-dasharray: 4 3; }
+      .edge-label { font-size: 10px; fill: #333; font-style: italic; }
+    </style>
+  </defs>
+
+  <text x="20" y="24" class="title" font-size="16">Minodu — Hardware Architecture</text>
+  <text x="20" y="42" class="sub">On-site deployment: environmental sensing → local server → user devices over local Wi-Fi.</text>
+
+  <!-- Sensing tier -->
+  <rect class="tier" x="20" y="60" width="920" height="170" rx="8"/>
+  <text class="tier-label" x="32" y="78">FIELD SENSING</text>
+
+  <rect class="node sensor" x="60" y="95" width="360" height="120" rx="6"/>
+  <text x="240" y="118" text-anchor="middle" class="title">Stevenson Screen · Sensors &amp; Wind Instruments</text>
+  <text x="240" y="136" text-anchor="middle" class="sub">Ventilated white shelter housing meteorological sensors</text>
+  <text x="80"  y="160" class="sub">• Temperature (°C)</text>
+  <text x="240" y="160" class="sub">• Humidity (% RH)</text>
+  <text x="80"  y="178" class="sub">• Air pressure (hPa)</text>
+  <text x="240" y="178" class="sub">• Air quality (PM / VOC)</text>
+  <text x="80"  y="196" class="sub">• Wind direction (vane)</text>
+  <text x="240" y="196" class="sub">• Wind speed (anemometer)</text>
+
+  <rect class="node board" x="540" y="95" width="360" height="120" rx="6"/>
+  <text x="720" y="118" text-anchor="middle" class="title">TeleAgriculture Board</text>
+  <text x="720" y="136" text-anchor="middle" class="sub">ESP32-based data-acquisition board</text>
+  <text x="560" y="162" class="sub">• Reads analog / digital sensor inputs</text>
+  <text x="560" y="180" class="sub">• Batches &amp; formats readings (JSON)</text>
+  <text x="560" y="198" class="sub">• Pushes to Pi over local Wi-Fi (HTTP / MQTT)</text>
+
+  <!-- Sensors -> Board (wired) -->
+  <path class="edge" d="M 420 155 L 540 155"/>
+  <text x="480" y="148" text-anchor="middle" class="edge-label">wired</text>
+
+  <!-- Local network tier -->
+  <rect class="tier" x="20" y="250" width="920" height="60" rx="8"/>
+  <text class="tier-label" x="32" y="268">LOCAL NETWORK</text>
+  <rect class="node infra" x="260" y="272" width="440" height="30" rx="6"/>
+  <text x="480" y="291" text-anchor="middle" class="title">Local Wi-Fi network (SSID hosted by Raspberry Pi)</text>
+
+  <!-- Board -> Wi-Fi -->
+  <path class="edge edge-dashed" d="M 720 215 L 720 240 L 620 240 L 620 272"/>
+  <text x="730" y="245" class="edge-label">Wi-Fi</text>
+
+  <!-- Server tier -->
+  <rect class="tier" x="20" y="330" width="620" height="230" rx="8"/>
+  <text class="tier-label" x="32" y="348">LOCAL SERVER</text>
+
+  <rect class="node server" x="60" y="365" width="540" height="180" rx="6"/>
+  <text x="330" y="388" text-anchor="middle" class="title">Raspberry Pi (Local Server)</text>
+  <text x="330" y="404" text-anchor="middle" class="sub">Runs the full Minodu stack in Docker Compose · acts as Wi-Fi access point</text>
+
+  <rect class="node infra" x="80"  y="420" width="160" height="30" rx="4"/>
+  <text x="160" y="439" text-anchor="middle" class="sub">Wi-Fi hotspot (hostapd)</text>
+
+  <rect class="node infra" x="260" y="420" width="140" height="30" rx="4"/>
+  <text x="330" y="439" text-anchor="middle" class="sub">Nginx reverse proxy</text>
+
+  <rect class="node infra" x="420" y="420" width="160" height="30" rx="4"/>
+  <text x="500" y="439" text-anchor="middle" class="sub">Ollama (local LLM)</text>
+
+  <rect class="node infra" x="80"  y="460" width="240" height="30" rx="4"/>
+  <text x="200" y="479" text-anchor="middle" class="sub">NestJS backend · FastAPI forum + AI</text>
+
+  <rect class="node infra" x="340" y="460" width="240" height="30" rx="4"/>
+  <text x="460" y="479" text-anchor="middle" class="sub">Svelte frontend · backoffice</text>
+
+  <rect class="node infra" x="80"  y="500" width="240" height="30" rx="4"/>
+  <text x="200" y="519" text-anchor="middle" class="sub">MySQL · Redis · Celery worker</text>
+
+  <rect class="node infra" x="340" y="500" width="240" height="30" rx="4"/>
+  <text x="460" y="519" text-anchor="middle" class="sub">Sensor ingest endpoint</text>
+
+  <!-- Wi-Fi <-> Pi -->
+  <path class="edge" d="M 480 302 L 480 365"/>
+  <text x="490" y="335" class="edge-label">sensor data in</text>
+  <path class="edge edge-dashed" d="M 160 420 L 160 335 L 260 335 L 260 302"/>
+  <text x="105" y="360" class="edge-label">broadcasts SSID</text>
+
+  <!-- Client tier (right side, next to server) -->
+  <rect class="tier" x="660" y="330" width="280" height="230" rx="8"/>
+  <text class="tier-label" x="672" y="348">USER DEVICE</text>
+
+  <rect class="node client" x="700" y="380" width="200" height="140" rx="6"/>
+  <text x="800" y="404" text-anchor="middle" class="title">Smartphone / Tablet</text>
+  <text x="800" y="422" text-anchor="middle" class="sub">Browser</text>
+  <text x="720" y="450" class="sub">• Joins Pi's local Wi-Fi</text>
+  <text x="720" y="468" class="sub">• Uses Svelte frontend</text>
+  <text x="720" y="486" class="sub">• Posts to forum</text>
+  <text x="720" y="504" class="sub">• Chats with AI assistant</text>
+
+  <!-- User Device -> Wi-Fi -->
+  <path class="edge edge-dashed" d="M 800 380 L 800 320 L 700 320 L 700 302"/>
+  <text x="810" y="345" class="edge-label">HTTP over Wi-Fi</text>
+
+  <!-- Legend -->
+  <rect class="tier" x="20" y="580" width="920" height="80" rx="8"/>
+  <text class="tier-label" x="32" y="598">LEGEND</text>
+  <rect class="node sensor" x="40"  y="612" width="16" height="12"/><text x="62" y="623" class="sub">Sensors / instruments</text>
+  <rect class="node board"  x="200" y="612" width="16" height="12"/><text x="222" y="623" class="sub">Data-acquisition board</text>
+  <rect class="node server" x="360" y="612" width="16" height="12"/><text x="382" y="623" class="sub">Local server (Pi)</text>
+  <rect class="node client" x="500" y="612" width="16" height="12"/><text x="522" y="623" class="sub">User device</text>
+  <rect class="node infra"  x="640" y="612" width="16" height="12"/><text x="662" y="623" class="sub">Software / network</text>
+  <line x1="40"  y1="648" x2="80"  y2="648" class="edge"/><text x="92"  y="652" class="sub">Wired signal / data ingest</text>
+  <line x1="260" y1="648" x2="300" y2="648" class="edge edge-dashed"/><text x="312" y="652" class="sub">Wireless (Wi-Fi)</text>
+</svg>

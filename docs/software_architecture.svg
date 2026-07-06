@@ -1,0 +1,653 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 960 720"
+   font-family="-apple-system, Helvetica, Arial, sans-serif"
+   font-size="12"
+   version="1.1"
+   id="svg68"
+   sodipodi:docname="architecture.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview68"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.075711"
+     inkscape:cx="461.09039"
+     inkscape:cy="383.0025"
+     inkscape:window-width="1235"
+     inkscape:window-height="655"
+     inkscape:window-x="0"
+     inkscape:window-y="38"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg68" />
+  <defs
+     id="defs1">
+    <marker
+       id="arrow"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto-start-reverse">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#555"
+         id="path1" />
+    </marker>
+    <style
+       id="style1">
+      .tier { fill: #f7f7fb; stroke: #c9c9d6; stroke-dasharray: 4 3; }
+      .tier-label { font-size: 11px; fill: #6b6b7a; font-weight: 600; letter-spacing: 1px; }
+      .node { stroke: #2b2b3b; stroke-width: 1.2; }
+      .frontend { fill: #ffe6b8; }
+      .backend  { fill: #b8dcff; }
+      .python   { fill: #c8f0c8; }
+      .data     { fill: #f2c8d8; }
+      .infra    { fill: #e0d4ff; }
+      .external { fill: #eeeeee; }
+      .title { font-size: 13px; font-weight: 700; fill: #1a1a2b; }
+      .sub   { font-size: 10px; fill: #444; }
+      .edge  { stroke: #555; stroke-width: 1.2; fill: none; marker-end: url(#arrow); }
+      .edge-dashed { stroke-dasharray: 4 3; }
+    </style>
+  </defs>
+  <text
+     x="20"
+     y="24"
+     class="title"
+     font-size="16"
+     id="text1">Minodu — System Architecture</text>
+  <text
+     x="20"
+     y="42"
+     class="sub"
+     id="text2">Docker Compose deployment (Raspberry Pi / local). Arrows show request flow.</text>
+  <!-- Clients tier -->
+  <rect
+     class="tier"
+     x="20"
+     y="60"
+     width="920"
+     height="70"
+     rx="8"
+     id="rect2" />
+  <text
+     class="tier-label"
+     x="32"
+     y="78"
+     id="text3">CLIENTS</text>
+  <rect
+     class="node external"
+     x="60"
+     y="88"
+     width="150"
+     height="34"
+     rx="6"
+     id="rect3" />
+  <text
+     x="135"
+     y="103"
+     text-anchor="middle"
+     class="title"
+     id="text4">User (Browser)</text>
+  <text
+     x="135"
+     y="117"
+     text-anchor="middle"
+     class="sub"
+     id="text5">Frontend :80</text>
+  <rect
+     class="node external"
+     x="230"
+     y="88"
+     width="150"
+     height="34"
+     rx="6"
+     id="rect5" />
+  <text
+     x="305"
+     y="103"
+     text-anchor="middle"
+     class="title"
+     id="text6">Admin (Browser)</text>
+  <text
+     x="305"
+     y="117"
+     text-anchor="middle"
+     class="sub"
+     id="text7">Backoffice :8080</text>
+  <rect
+     class="node external"
+     x="760"
+     y="88"
+     width="160"
+     height="34"
+     rx="6"
+     id="rect7" />
+  <text
+     x="840"
+     y="103"
+     text-anchor="middle"
+     class="title"
+     id="text8">Ollama (host)</text>
+  <text
+     x="840"
+     y="117"
+     text-anchor="middle"
+     class="sub"
+     id="text9">host.docker.internal:11434</text>
+  <!-- Edge / reverse proxy -->
+  <rect
+     class="tier"
+     x="20"
+     y="150"
+     width="920"
+     height="80"
+     rx="8"
+     id="rect9" />
+  <text
+     class="tier-label"
+     x="32"
+     y="168"
+     id="text10">EDGE</text>
+  <rect
+     class="node infra"
+     x="360"
+     y="180"
+     width="240"
+     height="40"
+     rx="6"
+     id="rect10" />
+  <text
+     x="480"
+     y="198"
+     text-anchor="middle"
+     class="title"
+     id="text11">minodu-web (Nginx)</text>
+  <text
+     x="480"
+     y="213"
+     text-anchor="middle"
+     class="sub"
+     id="text12">reverse proxy · serves SPA · :80 / :8080</text>
+  <!-- App tier -->
+  <rect
+     class="tier"
+     x="20"
+     y="250"
+     width="920"
+     height="180"
+     rx="8"
+     id="rect12" />
+  <text
+     class="tier-label"
+     x="32"
+     y="268"
+     id="text13">APPLICATION SERVICES</text>
+  <rect
+     class="node frontend"
+     x="60"
+     y="290"
+     width="180"
+     height="60"
+     rx="6"
+     id="rect13" />
+  <text
+     x="150"
+     y="310"
+     text-anchor="middle"
+     class="title"
+     id="text14">minodu-frontend</text>
+  <text
+     x="150"
+     y="326"
+     text-anchor="middle"
+     class="sub"
+     id="text15">Svelte 5 SPA</text>
+  <text
+     x="150"
+     y="340"
+     text-anchor="middle"
+     class="sub"
+     id="text16">served by Nginx</text>
+  <rect
+     class="node frontend"
+     x="260"
+     y="290"
+     width="180"
+     height="60"
+     rx="6"
+     id="rect16" />
+  <text
+     x="350"
+     y="310"
+     text-anchor="middle"
+     class="title"
+     id="text17">minodu-backoffice</text>
+  <text
+     x="350"
+     y="326"
+     text-anchor="middle"
+     class="sub"
+     id="text18">Svelte 5 admin SPA</text>
+  <text
+     x="350"
+     y="340"
+     text-anchor="middle"
+     class="sub"
+     id="text19">served by Nginx</text>
+  <rect
+     class="node backend"
+     x="60"
+     y="370"
+     width="180"
+     height="50"
+     rx="6"
+     id="rect19" />
+  <text
+     x="150"
+     y="390"
+     text-anchor="middle"
+     class="title"
+     id="text20">minodu-backend</text>
+  <text
+     x="150"
+     y="406"
+     text-anchor="middle"
+     class="sub"
+     id="text21">NestJS · :3000 · /api/backend</text>
+  <rect
+     class="node python"
+     x="260"
+     y="370"
+     width="180"
+     height="50"
+     rx="6"
+     id="rect21" />
+  <text
+     x="350"
+     y="390"
+     text-anchor="middle"
+     class="title"
+     id="text22">minodu-forum</text>
+  <text
+     x="350"
+     y="406"
+     text-anchor="middle"
+     class="sub"
+     id="text23">FastAPI · :3003 · /api/forum</text>
+  <rect
+     class="node python"
+     x="460"
+     y="370"
+     width="200"
+     height="50"
+     rx="6"
+     id="rect23" />
+  <text
+     x="560"
+     y="390"
+     text-anchor="middle"
+     class="title"
+     id="text24">minodu-ai-services</text>
+  <text
+     x="560"
+     y="406"
+     text-anchor="middle"
+     class="sub"
+     id="text25">FastAPI · :3002 · RAG + embeddings</text>
+  <rect
+     class="node python"
+     x="680"
+     y="370"
+     width="220"
+     height="50"
+     rx="6"
+     id="rect25" />
+  <text
+     x="790"
+     y="390"
+     text-anchor="middle"
+     class="title"
+     id="text26">minodu-forum-celery</text>
+  <text
+     x="790"
+     y="406"
+     text-anchor="middle"
+     class="sub"
+     id="text27">Celery worker (async forum tasks)</text>
+  <!-- Data tier -->
+  <rect
+     class="tier"
+     x="20"
+     y="450"
+     width="920"
+     height="120"
+     rx="8"
+     id="rect27" />
+  <text
+     class="tier-label"
+     x="32"
+     y="468"
+     id="text28">DATA</text>
+  <rect
+     class="node data"
+     x="80"
+     y="480"
+     width="180"
+     height="70"
+     rx="6"
+     id="rect28" />
+  <text
+     x="170"
+     y="502"
+     text-anchor="middle"
+     class="title"
+     id="text29">minodu-database</text>
+  <text
+     x="170"
+     y="518"
+     text-anchor="middle"
+     class="sub"
+     id="text30">MySQL :3306</text>
+  <text
+     x="170"
+     y="534"
+     text-anchor="middle"
+     class="sub"
+     id="text31">vol: mysql-data</text>
+  <rect
+     class="node data"
+     x="300"
+     y="480"
+     width="180"
+     height="70"
+     rx="6"
+     id="rect31" />
+  <text
+     x="390"
+     y="502"
+     text-anchor="middle"
+     class="title"
+     id="text32">redis</text>
+  <text
+     x="390"
+     y="518"
+     text-anchor="middle"
+     class="sub"
+     id="text33">:6379 · maxmemory 32mb</text>
+  <text
+     x="390"
+     y="534"
+     text-anchor="middle"
+     class="sub"
+     id="text34">broker + result backend</text>
+  <rect
+     class="node data"
+     x="520"
+     y="480"
+     width="180"
+     height="70"
+     rx="6"
+     id="rect34" />
+  <text
+     x="610"
+     y="502"
+     text-anchor="middle"
+     class="title"
+     id="text35">shared-data volume</text>
+  <text
+     x="610"
+     y="518"
+     text-anchor="middle"
+     class="sub"
+     id="text36">./data (bind mount)</text>
+  <text
+     x="610"
+     y="534"
+     text-anchor="middle"
+     class="sub"
+     id="text37">embeddings, uploads, logs</text>
+  <rect
+     class="node data"
+     x="740"
+     y="480"
+     width="160"
+     height="70"
+     rx="6"
+     id="rect37" />
+  <text
+     x="820"
+     y="502"
+     text-anchor="middle"
+     class="title"
+     id="text38">log-data volume</text>
+  <text
+     x="820"
+     y="518"
+     text-anchor="middle"
+     class="sub"
+     id="text39">./data/logs</text>
+  <text
+     x="820"
+     y="534"
+     text-anchor="middle"
+     class="sub"
+     id="text40">nginx + app logs</text>
+  <!-- Legend -->
+  <rect
+     class="tier"
+     x="20"
+     y="590"
+     width="920"
+     height="110"
+     rx="8"
+     id="rect40" />
+  <text
+     class="tier-label"
+     x="32"
+     y="608"
+     id="text41">LEGEND</text>
+  <rect
+     class="node frontend"
+     x="40"
+     y="620"
+     width="16"
+     height="12"
+     id="rect41" />
+  <text
+     x="62"
+     y="631"
+     class="sub"
+     id="text42">Frontend (Svelte)</text>
+  <rect
+     class="node backend"
+     x="180"
+     y="620"
+     width="16"
+     height="12"
+     id="rect42" />
+  <text
+     x="202"
+     y="631"
+     class="sub"
+     id="text43">Backend (NestJS)</text>
+  <rect
+     class="node python"
+     x="320"
+     y="620"
+     width="16"
+     height="12"
+     id="rect43" />
+  <text
+     x="342"
+     y="631"
+     class="sub"
+     id="text44">Python service (FastAPI / Celery)</text>
+  <rect
+     class="node data"
+     x="540"
+     y="620"
+     width="16"
+     height="12"
+     id="rect44" />
+  <text
+     x="562"
+     y="631"
+     class="sub"
+     id="text45">Data store / volume</text>
+  <rect
+     class="node infra"
+     x="700"
+     y="620"
+     width="16"
+     height="12"
+     id="rect45" />
+  <text
+     x="722"
+     y="631"
+     class="sub"
+     id="text46">Infrastructure (Nginx)</text>
+  <rect
+     class="node external"
+     x="850"
+     y="620"
+     width="16"
+     height="12"
+     id="rect46" />
+  <text
+     x="872"
+     y="631"
+     class="sub"
+     id="text47">External</text>
+  <line
+     x1="40"
+     y1="660"
+     x2="80"
+     y2="660"
+     class="edge"
+     id="line47" />
+  <text
+     x="92"
+     y="664"
+     class="sub"
+     id="text48">HTTP request</text>
+  <line
+     x1="200"
+     y1="660"
+     x2="240"
+     y2="660"
+     class="edge edge-dashed"
+     id="line48" />
+  <text
+     x="252"
+     y="664"
+     class="sub"
+     id="text49">Volume mount / async</text>
+  <!-- Edges: Users -> Nginx -->
+  <path
+     class="edge"
+     d="M 135 122 L 135 155 L 430 155 L 430 180"
+     id="path49" />
+  <path
+     class="edge"
+     d="M 305 122 L 305 155 L 500 155 L 500 180"
+     id="path50" />
+  <!-- Nginx -> Frontend/Backoffice (serves static) -->
+  <path
+     class="edge"
+     d="m 420,220 0.92962,20.35191 L 150,242.21115 V 290"
+     id="path51"
+     sodipodi:nodetypes="cccc" />
+  <path
+     class="edge"
+     d="M 460 220 L 460 245 L 350 245 L 350 290"
+     id="path52" />
+  <!-- Nginx -> Backend / Forum / AI (proxy /api/*) -->
+  <path
+     class="edge"
+     d="m 480,220 v 15 l -46.82644,0.37464 -185.5637,1.4846 0.99922,110.38411 -28.88776,21.82704"
+     id="path53"
+     sodipodi:nodetypes="cccccc" />
+  <path
+     class="edge"
+     d="m 500,220 v 30 l 0.59807,94.82101 L 423.4398,370"
+     id="path54"
+     sodipodi:nodetypes="cccc" />
+  <path
+     class="edge"
+     d="M 540 220 L 540 250 L 560 250 L 560 370"
+     id="path55" />
+  <!-- Backend -> DB / Forum / AI -->
+  <path
+     class="edge"
+     d="M 150 420 L 150 470 L 170 470 L 170 480"
+     id="path56" />
+  <path
+     class="edge"
+     d="M 240 395 L 260 395"
+     id="path57" />
+  <path
+     class="edge"
+     d="M 240 400 L 250 400 L 250 355 L 550 355 L 550 370"
+     id="path58" />
+  <!-- Forum -> DB / AI / Redis -->
+  <path
+     class="edge"
+     d="M 350 420 L 350 465 L 210 465 L 210 480"
+     id="path59" />
+  <path
+     class="edge"
+     d="M 440 395 L 460 395"
+     id="path60" />
+  <path
+     class="edge"
+     d="M 400 420 L 400 465 L 380 465 L 380 480"
+     id="path61" />
+  <!-- Celery -> Redis / AI / shared data -->
+  <path
+     class="edge"
+     d="M 790 420 L 790 465 L 410 465 L 410 480"
+     id="path62" />
+  <path
+     class="edge"
+     d="M 680 395 L 660 395"
+     id="path63" />
+  <!-- AI -> Ollama -->
+  <path
+     class="edge"
+     d="m 633.95173,368.82599 -0.45518,-69.72133 123.63915,1.81784 88.33294,-0.92962 V 122.01857"
+     id="path64"
+     sodipodi:nodetypes="ccccc" />
+  <!-- Shared-data volume (dashed to services using it) -->
+  <path
+     class="edge edge-dashed"
+     d="M 610,480 V 440 H 178.81815 L 150,420"
+     id="path65"
+     sodipodi:nodetypes="cccc" />
+  <path
+     class="edge edge-dashed"
+     d="M 610,480 V 445 H 372.31083 L 350,420"
+     id="path66"
+     sodipodi:nodetypes="cccc" />
+  <path
+     class="edge edge-dashed"
+     d="M 610,480 V 450 H 576.73312 L 560,420"
+     id="path67"
+     sodipodi:nodetypes="cccc" />
+  <path
+     class="edge edge-dashed"
+     d="M 610,480 V 455 L 764.90032,453.14076 790,420"
+     id="path68"
+     sodipodi:nodetypes="cccc" />
+</svg>

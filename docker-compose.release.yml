@@ -1,0 +1,191 @@
+services:
+  # Database service
+  minodu-database:
+    build:
+      context: ./apps/minodu-database
+      dockerfile: Dockerfile
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+      
+   # Backend Service
+  minodu-backend:
+    build:
+      context: ./apps/minodu-backend
+      dockerfile: Dockerfile
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      DB_HOST: "${DB_HOST:-minodu-database}"
+      DB_PORT: "${DB_PORT:-3306}"
+      DB_USERNAME: "${MYSQL_USER}"
+      DB_PASSWORD: "${MYSQL_PASSWORD}"
+      DB_NAME: "${DB_NAME}"
+      APP_PORT: "${APP_PORT:-3000}"
+      APP_HOST: "${APP_HOST:-/api/backend}"
+      JWT_SECRET: "${JWT_SECRET_KEY}"
+      ADMIN_PHONE: "${ADMIN_PHONE}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
+      FORUM_URL: "http://minodu-forum:3003"
+      FORUM_ADMIN_PASSWORD: "${FORUM_ADMIN_PASSWORD}"
+      AI_SERVICE_URL: "http://minodu-ai-services:3002"
+    volumes:
+      - shared-data:/app/data
+      - log-data:/app/server/logs
+    depends_on:
+      minodu-database:
+        condition: service_healthy
+      minodu-ai-services:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/v1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # AI Services
+  minodu-ai-services:
+    build:
+      context: ./apps/minodu-ai-services
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - OLLAMA_HOST=host.docker.internal:11434
+      - PORT=3002
+      - ENVIRONMENT=${ENVIRONMENT}
+      - EMBEDDING_DATABASE_PATH=/app/data/minodu-ai-services
+    volumes:
+      - shared-data:/app/data
+      - log-data:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/api/services/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # Forum Service
+  minodu-forum:
+    build:
+      context: ./apps/minodu-forum
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - DATABASE_URL=mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@minodu-database:3306/minodu
+      - PORT=3003
+      - AI_SERVICE_URL=http://minodu-ai-services:3002/api/services
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_BACKEND_URL=redis://redis:6379/1
+      - ENVIRONMENT=${ENVIRONMENT}
+      - ADMIN_PASSWORD=${FORUM_ADMIN_PASSWORD}
+    volumes:
+      - shared-data:/app/data
+    depends_on:
+      minodu-database:
+        condition: service_healthy
+      minodu-ai-services:
+        condition: service_started
+      minodu-forum-celery:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/api/forum/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  minodu-forum-celery:
+    build:
+      context: ./apps/minodu-forum
+      dockerfile: Dockerfile
+    command: poetry run python worker.py
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_BACKEND_URL=redis://redis:6379/1
+      - AI_SERVICE_URL=http://minodu-ai-services:3002/api/services
+      - ENVIRONMENT=${ENVIRONMENT}
+    volumes:
+      - shared-data:/app/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "celery inspect ping --destination celery@$$HOSTNAME"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  redis:
+    image: redis:alpine
+    command: redis-server --maxmemory 32mb
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+   # Web Service [Frontend + Backoffice]
+  minodu-web:
+    container_name: minodu-web
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    image: minodu-web:latest
+    ports:
+      - "80:80"      # Frontend (80 on RPI/8088 on local)
+      - "8080:8080"  # Backoffice
+    volumes:
+      - log-data:/var/log/nginx
+    depends_on:
+      - minodu-forum
+      - minodu-ai-services
+      - minodu-backend
+    restart: unless-stopped
+
+volumes:
+  shared-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data
+      o: bind
+  mysql-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/mysql
+      o: bind
+  log-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/logs
+      o: bind  
