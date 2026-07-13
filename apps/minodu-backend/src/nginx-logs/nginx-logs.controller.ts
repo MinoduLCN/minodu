@@ -5,6 +5,8 @@ import { Response } from 'express';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/role.decorator';
 import { userRole } from 'src/roles/entities/user_role.enum';
+import { Throttle } from '@nestjs/throttler';
+
 
 @ApiTags("Nginx Logs")
 @ApiBearerAuth()
@@ -53,6 +55,17 @@ export class NginxLogsController {
         error: error.message
       });
     }
+  }
+
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // Max 5 tentatives par 10 minute
+  @Roles(userRole.ADMIN)
+  @ApiOperation({
+    summary: "Download Frontend logs data into text file",
+    description: "Download Frontend logs data from the system into text file"
+  })
+  @Get('download')
+  async downloadLogs(@Res() res: any): Promise<object> {
+      return this.nginxLogsService.download(res);
   }
   
   @Roles(userRole.ADMIN)

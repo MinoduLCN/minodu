@@ -2,12 +2,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { NGINX_LOG_PATHS } from './constants';
 import { promises as fs } from 'fs';
 import { LoggerService } from 'src/logs/logger.service';
+import { Response } from 'express';
 
 @Injectable()
 export class NginxLogsService {
 
   constructor(
-    private readonly logger: LoggerService
+    private readonly loggerService: LoggerService
   ) { }
 
   private getLogPath(type: string = 'default'): string {
@@ -58,6 +59,25 @@ export class NginxLogsService {
         `Erreur lors de la lecture du fichier de log : ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR
       );
+    }
+  }
+
+  async download(res: Response) {
+    try{
+      // Check if file exists
+      await fs.access(NGINX_LOG_PATHS.DEFAULT_LOG);
+      
+      const fileContent = await fs.readFile(NGINX_LOG_PATHS.DEFAULT_LOG, 'utf8');
+
+      this.loggerService.log(`Nginx logs downloaded`, NginxLogsService.name);
+
+      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Disposition', 'attachment; filename="frontend_logs.txt"');
+      return res.send(fileContent);
+
+    }catch (error) {
+      this.loggerService.error(`Error occurred while downloading frontend logs: ${error.message}`, NginxLogsService.name);
+      throw error;
     }
   }
 
