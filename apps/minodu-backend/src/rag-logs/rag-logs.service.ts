@@ -2,12 +2,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { RAG_LOG } from './constants';
 import { promises as fs } from 'fs';
 import { LoggerService } from 'src/logs/logger.service';
+import { Response } from 'express';
 
 @Injectable()
 export class RagLogsService {
 
   constructor(
-    private readonly logger: LoggerService
+    private readonly loggerService: LoggerService
   ) { }
 
   async readRawLogs(
@@ -45,6 +46,25 @@ export class RagLogsService {
         `Erreur lors de la lecture du fichier de log : ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR
       );
+    }
+  }
+
+  async download(res: Response) {
+    try{
+      // Check if file exists
+      await fs.access(RAG_LOG.DEFAULT);
+      
+      const fileContent = await fs.readFile(RAG_LOG.DEFAULT, 'utf8');
+
+      this.loggerService.log(`Rag logs downloaded`, RagLogsService.name);
+
+      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Disposition', 'attachment; filename="rag_logs.txt"');
+      return res.send(fileContent);
+
+    }catch (error) {
+      this.loggerService.error(`Error occurred while downloading rag logs: ${error.message}`, RagLogsService.name);
+      throw error;
     }
   }
 

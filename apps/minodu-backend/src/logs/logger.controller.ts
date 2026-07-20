@@ -5,6 +5,8 @@ import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/role.decorator';
 import { userRole } from 'src/roles/entities/user_role.enum';
 import { LoggerService } from './logger.service';
+import { Throttle } from '@nestjs/throttler';
+
 
 @ApiTags("Backend Logs")
 @ApiBearerAuth()
@@ -45,6 +47,17 @@ export class LoggerController {
         error: error.message
       });
     }
+  }
+
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // Max 5 tentatives par 10 minute
+  @Roles(userRole.ADMIN)
+  @ApiOperation({
+    summary: "Download Backend logs data into text file",
+    description: "Download Backend logs data from the system into text file"
+  })
+  @Get('download')
+  async downloadLogs(@Res() res: any): Promise<object> {
+      return this.loggerService.download(res);
   }
   
   @Roles(userRole.ADMIN)

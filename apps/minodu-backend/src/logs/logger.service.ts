@@ -3,6 +3,8 @@ import * as winston from 'winston';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { LOG_DIR } from './constants';
+import { Response } from 'express';
+
 
 @Injectable()
 export class LoggerService {
@@ -60,6 +62,30 @@ export class LoggerService {
       throw new Error(`Erreur lors de la lecture : ${error.message}`);
     }
   } 
+
+  async download(res: Response) {
+    try{
+      const allFiles = await fs.readdir(LOG_DIR.DEFAULT);
+
+      const logFiles = allFiles.filter(file => 
+        file.endsWith('.log')
+      );
+
+      const fileContent = await Promise.all(
+        logFiles.map(file => fs.readFile(path.join(LOG_DIR.DEFAULT, file), 'utf8'))
+      );
+      const combinedContent = fileContent.join('\n');
+      this.log(`Backend logs downloaded`, LoggerService.name);
+
+      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Disposition', 'attachment; filename="backend_logs.txt"');
+      return res.send(combinedContent);
+
+    }catch (error) {
+      this.error(`Error occurred while downloading backend logs: ${error.message}`, LoggerService.name);
+      throw error;
+    }
+  }
 
   async emptyLogFile(): Promise<{ success: boolean; message: string }> {
      try {

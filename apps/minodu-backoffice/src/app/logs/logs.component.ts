@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { LogsService } from '../_services/logs.service';
 import { DateUtilsService } from '../_helpers/dateutils.service';
 import { LoaderService } from '../_helpers/loader.service';
@@ -13,18 +15,20 @@ import { AuthService } from '../_services/auth.service';
   templateUrl: './logs.component.html',
   styleUrl: './logs.component.css'
 })
-export class LogsComponent implements OnInit {
+export class LogsComponent implements OnInit, OnDestroy {
   logs: any[] = [];
   loading = false;
   loadingMore = false;
   errorMessage = '';
   successMessage = '';
   logsText = '';
+  isDownloading = false;
   isClearing = false;
   activeTab: 'default' | 'error' | 'access' = 'default';
   logSource: 'frontend' | 'backend' | 'rag' = 'frontend';
   currentLines: number = 500;
   readonly LINES_INCREMENT: number = 500;
+  private destroy$ = new Subject<void>();
 
   constructor(
     public dateUtilsService: DateUtilsService,
@@ -35,6 +39,11 @@ export class LogsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadLogs();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadLogs() {
@@ -135,26 +144,48 @@ export class LogsComponent implements OnInit {
     });
   }
 
-  downloadLogs(format: 'txt' | 'json') {
-    const element = document.createElement('a');
-    let content = this.logsText;
-    let filename = '';
-    let type = '';
 
-    if (format === 'json') {
-      content = JSON.stringify({ logs: this.logsText }, null, 2);
-      filename = 'logs.json';
-      type = 'application/json';
-    } else {
-      filename = 'logs.txt';
-      type = 'text/plain';
-    }
 
-    element.setAttribute('href', 'data:' + type + ';charset=utf-8,' + encodeURIComponent(content));
-    element.setAttribute('download', filename);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+  // Labels dynamiques selon la source active
+  get downloadButtonLabel(): string {
+    const labels: Record<string, string> = {
+      frontend: 'Télécharger les logs du frontend',
+      backend:  'Télécharger les logs du backend',
+      rag:      'Télécharger les logs du RAG',
+    };
+    return labels[this.logSource] ?? 'Télécharger les logs';
   }
+
+  get downloadFileName(): string {
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const stamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
+    return `logs_${this.logSource}_${stamp}.txt`;
+  }
+
+  // ---- Méthode de téléchargement ----
+  downloadLogs(): void {
+    if (this.isDownloading) return;
+    this.isDownloading = true;
+
+    this.logsService.downloadLogs(this.logSource)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob: Blob) => {
+          // Créer un lien temporaire et déclencher le téléchargement
+          const url  = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href  = url;
+          link.download = this.downloadFileName;
+          link.click();
+          window.URL.revokeObjectURL(url);
+          this.isDownloading = false;
+        },
+        error: (err) => {
+          console.error('Erreur téléchargement logs:', err);
+          this.isDownloading = false;
+        }
+      });
+  }
+
 }
