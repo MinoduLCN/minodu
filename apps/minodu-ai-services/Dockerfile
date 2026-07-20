@@ -1,13 +1,5 @@
-FROM python:3.12-slim AS base
+FROM ghcr.io/minodulcn/minodu-python-base:latest AS base
 
-# prepare container
-RUN apt-get update -y && apt upgrade -y && apt-get clean -y
-RUN apt-get install ffmpeg -y
-RUN apt-get install unzip -y
-RUN apt-get install curl -y
-
-# Install Poetry
-RUN pip install poetry
 RUN poetry config virtualenvs.create false
 COPY pyproject.toml poetry.lock ./
 RUN poetry install --no-root --only=main --no-interaction --no-ansi
