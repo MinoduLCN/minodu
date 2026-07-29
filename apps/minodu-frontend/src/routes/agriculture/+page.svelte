@@ -5,7 +5,4 @@
 	import explainPageKb from '$lib/assets/audio/s2_agricultire_kb.mp3';
 </script>
 
-<ExplainPageButton
-	audioFr={explainPageFr}
-	audioKb={explainPageKb}
-/>
+<ExplainPageButton audioFr={explainPageFr} audioKb={explainPageKb} />

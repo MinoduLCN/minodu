@@ -131,7 +131,7 @@
 	export function stopAnswer() {
 		streamAbortController?.abort();
 		streamAbortController = undefined;
-		
+
 		let currentMessage = messages.length > 0 ? messages.slice(-1)[0] : undefined;
 		if (currentMessage) {
 			currentMessage.final = true;
@@ -187,9 +187,7 @@
 			</div>
 			<BotInputElement onMessageSubmitted={submitMessage} enabled={!generating} />
 		</div>
-		<ExplainPageButton
-			audioFr={explainPageFr}
-			audioKb={explainPageKb}/>
+		<ExplainPageButton audioFr={explainPageFr} audioKb={explainPageKb} />
 	{/if}
 	<TextToSpeechPlayer bind:this={ttsPlayer} />
 </div>

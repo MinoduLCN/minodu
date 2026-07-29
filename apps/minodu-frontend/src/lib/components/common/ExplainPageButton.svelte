@@ -14,7 +14,7 @@
 	let isPlaying: boolean = false;
 	let mounted: boolean = false;
 
-	let audioSrc : string | undefined = undefined;
+	let audioSrc: string | undefined = undefined;
 
 	function languageButtonClicked() {
 		language.set($language == 'kb' ? 'fr' : 'kb');
@@ -23,10 +23,10 @@
 	}
 
 	async function explainPageButtonClicked() {
-		audioSrc = $language == 'kb' ? audioKb : audioFr
+		audioSrc = $language == 'kb' ? audioKb : audioFr;
 
 		await tick();
-		
+
 		if (!isPlaying) {
 			audio.currentTime = 0;
 			audio.play();
@@ -63,13 +63,7 @@
 					alt={t('alt.switchLanguage', $language)}
 				/>
 			</button>
-			<audio
-				bind:this={audio}
-				src={audioSrc}
-				onended={handleAudioEnded}
-				preload="none"
-			>
-			</audio>
+			<audio bind:this={audio} src={audioSrc} onended={handleAudioEnded} preload="none"> </audio>
 		{/if}
 	</div>
 </div>

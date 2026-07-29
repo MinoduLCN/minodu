@@ -8,8 +8,5 @@
 
 <div>
 	<MarketPage />
-	<ExplainPageButton
-		audioFr={explainPageFr}
-		audioKb={explainPageKb}
-	/>
+	<ExplainPageButton audioFr={explainPageFr} audioKb={explainPageKb} />
 </div>

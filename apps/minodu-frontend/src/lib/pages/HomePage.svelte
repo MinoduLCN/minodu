@@ -9,7 +9,6 @@
 
 	import explainPageFr from '$lib/assets/audio/s1_accueil_fr.mp3';
 	import explainPageKb from '$lib/assets/audio/s1_accueil_kb.mp3';
-
 </script>
 
 <div class="content-width">
@@ -42,10 +41,7 @@
 	<div class="tree-link">
 		<a href="/about"></a>
 	</div>
-	<ExplainPageButton
-		audioFr={explainPageFr}
-		audioKb={explainPageKb}
-	/>
+	<ExplainPageButton audioFr={explainPageFr} audioKb={explainPageKb} />
 </div>
 
 <style>
