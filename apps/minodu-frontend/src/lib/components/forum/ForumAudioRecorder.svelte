@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Optional } from '$lib/types';
 	import AudioPlayer from '../common/AudioPlayer.svelte';
+	import ForumPickerUnavailableDialog from './ForumPickerUnavailableDialog.svelte';
 
 	import micIcon from '$lib/assets/microphone-icon-dark.png';
 	import { language } from '$lib/stores';
@@ -11,13 +12,16 @@
 	let fileInput: HTMLInputElement;
 	let audioPlayer: AudioPlayer;
 	let audioUrl: Optional<string>;
+	let showUnavailableDialog: boolean = false;
+
+	const PICKER_TIMEOUT_MS = 100;
 
 	$: if (!blob) {
 		reset();
 	}
 
 	export async function startRecording() {
-		fileInput.click();
+		attemptOpen(fileInput);
 	}
 
 	export function reset() {
@@ -32,6 +36,40 @@
 			audioUrl = URL.createObjectURL(file);
 			blob = file;
 		}
+	}
+
+	// When a real file picker opens, the OS takes focus away from the page and
+	// window fires `blur`. If that never happens after the click, the browser
+	// silently refused (e.g., captive portal webview) — show the fallback dialog.
+	function attemptOpen(input: HTMLInputElement) {
+		let opened = false;
+
+		const onBlur = () => {
+			opened = true;
+			cleanup();
+		};
+		const onVisibility = () => {
+			if (document.visibilityState === 'hidden') {
+				opened = true;
+				cleanup();
+			}
+		};
+		const cleanup = () => {
+			window.removeEventListener('blur', onBlur);
+			document.removeEventListener('visibilitychange', onVisibility);
+		};
+
+		window.addEventListener('blur', onBlur, { once: true });
+		document.addEventListener('visibilitychange', onVisibility);
+
+		input.click();
+
+		setTimeout(() => {
+			cleanup();
+			if (!opened) {
+				showUnavailableDialog = true;
+			}
+		}, PICKER_TIMEOUT_MS);
 	}
 </script>
 
@@ -52,13 +90,17 @@
 			style="display: none;"
 		/>
 		<div class="select-button">
-			<button onclick={() => fileInput.click()}>
+			<button onclick={() => attemptOpen(fileInput)}>
 				<img src={micIcon} alt={t('forum.recordAudio', $language)} />
 				<span>{t('forum.recordAudio', $language)}</span>
 			</button>
 		</div>
 	{/if}
 </div>
+
+{#if showUnavailableDialog}
+	<ForumPickerUnavailableDialog onClose={() => (showUnavailableDialog = false)} />
+{/if}
 
 <style>
 	.audio-recorder-container {

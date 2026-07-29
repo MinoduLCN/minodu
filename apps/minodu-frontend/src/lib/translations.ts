@@ -163,6 +163,14 @@ const translations: TranslationStrings = {
 		fr: 'Galerie de photos',
 		kb: 'kɛlɛm-kɛlɛm naa kpowu'
 	},
+	'forum.pickerUnavailableTitle': {
+		fr: 'Sélecteur de fichier indisponible',
+		kb: 'Sélecteur de fichier indisponible'
+	},
+	'forum.pickerUnavailableBody': {
+		fr: "Votre navigateur ne permet pas de sélectionner un fichier. Veuillez ouvrir le site dans un navigateur (Chrome, Firefox, Safari) au lieu d'une page de connexion Wi-Fi.",
+		kb: "Votre navigateur ne permet pas de sélectionner un fichier. Veuillez ouvrir le site dans un navigateur (Chrome, Firefox, Safari) au lieu d'une page de connexion Wi-Fi."
+	},
 	'forum.recordAudio': {
 		fr: "Enregistrer l'audio",
 		kb: 'tɔm kiwelezitu kpaaʋ'

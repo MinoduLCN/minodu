@@ -5,6 +5,7 @@
 	import galleryIcon from '$lib/assets/gallery-icon.png';
 	import { language } from '$lib/stores';
 	import { t } from '$lib/translations';
+	import ForumPickerUnavailableDialog from './ForumPickerUnavailableDialog.svelte';
 
 	export let image: Optional<File> = undefined;
 
@@ -15,6 +16,9 @@
 	let imageUrl: Optional<string>;
 	let galleryInput: HTMLInputElement;
 	let cameraInput: HTMLInputElement;
+	let showUnavailableDialog: boolean = false;
+
+	const PICKER_TIMEOUT_MS = 3000;
 
 	function handleCapture(e: Event) {
 		const target = e.target as HTMLInputElement;
@@ -23,6 +27,40 @@
 			imageUrl = URL.createObjectURL(file);
 			image = file;
 		}
+	}
+
+	// When a real file picker opens, the OS takes focus away from the page and
+	// window fires `blur`. If that never happens after the click, the browser
+	// silently refused (e.g., captive portal webview) — show the fallback dialog.
+	function attemptOpen(input: HTMLInputElement) {
+		let opened = false;
+
+		const onBlur = () => {
+			opened = true;
+			cleanup();
+		};
+		const onVisibility = () => {
+			if (document.visibilityState === 'hidden') {
+				opened = true;
+				cleanup();
+			}
+		};
+		const cleanup = () => {
+			window.removeEventListener('blur', onBlur);
+			document.removeEventListener('visibilitychange', onVisibility);
+		};
+
+		window.addEventListener('blur', onBlur, { once: true });
+		document.addEventListener('visibilitychange', onVisibility);
+
+		input.click();
+
+		setTimeout(() => {
+			cleanup();
+			if (!opened) {
+				showUnavailableDialog = true;
+			}
+		}, PICKER_TIMEOUT_MS);
 	}
 
 	export function clearImage() {
@@ -52,13 +90,13 @@
 			style="display: none;"
 		/>
 		<div class="select-button">
-			<button class="shadow" onclick={() => cameraInput.click()}>
+			<button class="shadow" onclick={() => attemptOpen(cameraInput)}>
 				<img src={cameraIcon} alt={t('forum.takePhoto', $language)} />
 				<span>{t('forum.takePhoto', $language)}</span>
 			</button>
 		</div>
 		<div class="select-button">
-			<button class="shadow" onclick={() => galleryInput.click()}>
+			<button class="shadow" onclick={() => attemptOpen(galleryInput)}>
 				<img src={galleryIcon} alt={t('forum.galleryPhoto', $language)} />
 				<span>{t('forum.galleryPhoto', $language)}</span>
 			</button>
@@ -70,6 +108,10 @@
 		<!-- <button onclick={() => (image = undefined)}>Clear Image</button> -->
 	{/if}
 </div>
+
+{#if showUnavailableDialog}
+	<ForumPickerUnavailableDialog onClose={() => (showUnavailableDialog = false)} />
+{/if}
 
 <style>
 	.image-picker-container {
