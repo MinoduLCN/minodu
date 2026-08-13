@@ -168,8 +168,8 @@ const translations: TranslationStrings = {
 		kb: 'Sélecteur de fichier indisponible'
 	},
 	'forum.pickerUnavailableBody': {
-		fr: "Votre navigateur ne permet pas de sélectionner un fichier. Veuillez ouvrir le site dans un navigateur (Chrome, Firefox, Safari) au lieu d'une page de connexion Wi-Fi.",
-		kb: "Votre navigateur ne permet pas de sélectionner un fichier. Veuillez ouvrir le site dans un navigateur (Chrome, Firefox, Safari) au lieu d'une page de connexion Wi-Fi."
+		fr: "Sélection de fichier impossible ici. Ouvrez http://minodupi.local dans Chrome, Firefox ou Safari.",
+		kb: "Sélection de fichier impossible ici. Ouvrez http://minodupi.local dans Chrome, Firefox ou Safari."
 	},
 	'forum.recordAudio': {
 		fr: "Enregistrer l'audio",
