@@ -14,7 +14,7 @@
     "sync": "rm -f ./tools/sync/download.zip && npm run sync:update_backup && npm run sync:database && npm run sync:rag",
     "sync:update_backup": "curl -X GET http://137.184.46.216:3000/backup/create",
     "sync:update_database": "npx dotenv -- sh -c 'poetry --directory tools/sync run python sync_database.py http://137.184.46.216:3000/files/minodu_backend_backup.zip --destination=../../data/minodu-backend --user=$MYSQL_USER --password=$MYSQL_PASSWORD'",
-    "sync:database": "npx dotenv -- sh -c 'poetry --directory tools/sync run python sync_database.py \"https://cloud.dfki.de/owncloud/index.php/s/9WWfFeQTCPEzaAp/download?path=%2F&files=minodu_backend_backup(1).zip\" --destination=../../data/minodu-backend --user=$MYSQL_USER --password=$MYSQL_PASSWORD'",
+    "sync:database": "npx dotenv -- sh -c 'poetry --directory tools/sync run python sync_database.py https://github.com/lutzer/minodu-installer/releases/download/dataset-v3/minodu_dataset.zip --destination=../../data/minodu-backend --user=$MYSQL_USER --password=$MYSQL_PASSWORD'",
     "sync:rag": "poetry --directory tools/sync run python sync_rag.py http://localhost/api/backend/v1/posts/ minodu-minodu-ai-services-1",
     "info:rag": "docker exec minodu-minodu-ai-services-1 python cli.py --list-docs"
   },
