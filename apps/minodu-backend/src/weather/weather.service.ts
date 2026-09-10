@@ -101,7 +101,7 @@ export class WeatherService {
       const response = await axios.post(
         `${process.env.AI_SERVICE_URL}/weather/text`,
         { language: 'fr', sensor_data: data },
-        { responseType: 'text', transformResponse: [(d) => d] },
+        { responseType: 'text', transformResponse: [(d) => d], timeout: 120_000 },
       );
       const text = typeof response.data === 'string' ? response.data.trim() : '';
       if (!text) return null;
