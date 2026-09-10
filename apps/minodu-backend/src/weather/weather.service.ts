@@ -50,32 +50,43 @@ export class WeatherService {
         diffMinutes = diffMs / (1000 * 60);
       }
 
-      if((diffMinutes > thresholdMinutes) || (latestInterpretedData === null) ) {
-            const weatherAiData = {
-              temperature: weather.temperature,
-              humidity: weather.humidity,
-              pressure: weather.pressure,
-              luminosity: weather.luminosity,
-              ambient_luminosity: weather.ambient,
-              carbon_monoxide: weather.co,
-              nitrogen_dioxide: weather.no2,
-              wind_spd: weather.wind_speed,
-              wind_dir: weather.wind_direction
-            };
-            
-            this.interpretWeather(weatherAiData).then(async description => {
-              if(description) {
-                weather.description = description;
-                await weather.save();
-                this.loggerService.log(`Weather data interpreted (ID: ${weather.id})`);
-              }
-            })
-        }else{
-          weather.description = (latestInterpretedData)?latestInterpretedData.description: null; // Use the last interpretation as default description
-        }
+      const shouldInterpret = (diffMinutes > thresholdMinutes) || (latestInterpretedData === null);
+
+      if (!shouldInterpret && latestInterpretedData) {
+        weather.description = latestInterpretedData.description;
+      }
 
       weather = await weather.save();
       this.loggerService.log(`Weather data synchronized (ID: ${weather.id})`);
+
+      if (shouldInterpret) {
+        const weatherAiData = {
+          temperature: weather.temperature,
+          humidity: weather.humidity,
+          pressure: weather.pressure,
+          luminosity: weather.luminosity,
+          ambient_luminosity: weather.ambient,
+          carbon_monoxide: weather.co,
+          nitrogen_dioxide: weather.no2,
+          wind_spd: weather.wind_speed,
+          wind_dir: weather.wind_direction
+        };
+
+        const weatherId = weather.id;
+        this.interpretWeather(weatherAiData)
+          .then(async description => {
+            if (!description) return;
+            await this.weatherRepository.update(weatherId, { description });
+            this.loggerService.log(`Weather data interpreted (ID: ${weatherId})`);
+          })
+          .catch(err => {
+            this.loggerService.error(
+              `Weather interpretation failed (ID: ${weatherId}): ${err.message}`,
+              WeatherService.name,
+            );
+          });
+      }
+
       return weather;
 
     } catch (error) {
@@ -85,13 +96,20 @@ export class WeatherService {
   }
 
 
-  async interpretWeather(data): Promise<any> {
+  async interpretWeather(data): Promise<string | null> {
     try {
-      const response = await axios.post(`${process.env.AI_SERVICE_URL}/weather/text`, {
-        language: 'fr',
-        sensor_data: data
-      });
-      return response.data;
+      const response = await axios.post(
+        `${process.env.AI_SERVICE_URL}/weather/text`,
+        { language: 'fr', sensor_data: data },
+        { responseType: 'text', transformResponse: [(d) => d] },
+      );
+      const text = typeof response.data === 'string' ? response.data.trim() : '';
+      if (!text) return null;
+      if (text.includes('[ERROR:')) {
+        this.loggerService.error(`AI service returned error payload: ${text}`, WeatherService.name);
+        return null;
+      }
+      return text;
     } catch (error) {
       this.loggerService.error(`Error occurred while interpreting weather data: ${error.message}`, WeatherService.name);
       throw error;
