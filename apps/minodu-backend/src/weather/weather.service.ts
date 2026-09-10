@@ -12,6 +12,8 @@ import { DataFormater } from 'src/utils/data.formatter';
 @Injectable()
 export class WeatherService {
 
+  private isInterpreting = false;
+
   constructor(
     @InjectRepository(Weather)
     private readonly weatherRepository: Repository<Weather>,
@@ -40,7 +42,7 @@ export class WeatherService {
 
 
       const latestInterpretedData = await this.findLatestWeatherInterpretation();
-      const thresholdMinutes = 1; // 30 minutes threshold to trigger new interpretation
+      const thresholdMinutes = 60;
       var diffMinutes = thresholdMinutes;
 
       if (latestInterpretedData) {
@@ -50,7 +52,9 @@ export class WeatherService {
         diffMinutes = diffMs / (1000 * 60);
       }
 
-      const shouldInterpret = (diffMinutes > thresholdMinutes) || (latestInterpretedData === null);
+      const shouldInterpret =
+        !this.isInterpreting &&
+        ((diffMinutes > thresholdMinutes) || (latestInterpretedData === null));
 
       if (!shouldInterpret && latestInterpretedData) {
         weather.description = latestInterpretedData.description;
@@ -73,6 +77,7 @@ export class WeatherService {
         };
 
         const weatherId = weather.id;
+        this.isInterpreting = true;
         this.interpretWeather(weatherAiData)
           .then(async description => {
             if (!description) return;
@@ -84,6 +89,9 @@ export class WeatherService {
               `Weather interpretation failed (ID: ${weatherId}): ${err.message}`,
               WeatherService.name,
             );
+          })
+          .finally(() => {
+            this.isInterpreting = false;
           });
       }
 
