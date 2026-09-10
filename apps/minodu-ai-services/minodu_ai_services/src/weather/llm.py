@@ -6,7 +6,7 @@ from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 from langchain.schema.output_parser import StrOutputParser
-from typing import Iterator
+from typing import Iterator, Optional
 import textwrap
 from dataclasses import dataclass, asdict
 import langchain
@@ -21,15 +21,15 @@ class WeatherLLM:
 
     @dataclass
     class SensorData:
-        temperature: float
-        humidity: float
-        pressure: float
-        luminosity: float
-        ambient_luminosity: float
-        carbon_monoxide: float
-        nitrogen_dioxide: float
-        wind_dir: float
-        wind_spd: float
+        temperature: Optional[float] = None
+        humidity: Optional[float] = None
+        pressure: Optional[float] = None
+        carbon_monoxide: Optional[float] = None
+        nitrogen_dioxide: Optional[float] = None
+        wind_dir: Optional[float] = None
+        wind_spd: Optional[float] = None
+        luminosity: Optional[float] = None
+        ambient_luminosity: Optional[float] = None
 
     def __init__(self, language : LanguageEnum):
 
