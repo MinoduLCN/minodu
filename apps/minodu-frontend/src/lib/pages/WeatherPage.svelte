@@ -61,6 +61,7 @@
 
 	$: pressure = weather?.pressure != null && getPressureLevel(weather.pressure);
 	$: thermometer = weather?.temperature1 != null && getTemperatureIcon(weather.temperature1);
+	$: windDirection = weather?.wind_direction != null && weather.wind_direction;
 
 	function toggleSpeakWeather() {
 		if (ttsSpeaking) ttsPlayer.stop();
@@ -152,7 +153,7 @@
 		{#if loading}
 			<LoadingSpinner text={t('weather.loadingText', $language)} />
 		{:else}
-			{#if !weather}
+			{#if weather === undefined}
 				<LoadingSpinner text={t('weather.loadingText', $language)} />
 			{:else}
 				<div class="weather-container content-width">
@@ -161,7 +162,7 @@
 							<img src={cloud} alt={t('weather.cloud', $language)} />
 						</div>
 					{/if}
-					{#if weather.wind_direction}
+					{#if windDirection !== false}
 						<div class="compass" style="background-image: url({compassBackground}">
 							<img
 								class="needle"
@@ -172,19 +173,19 @@
 							<span class="label">{format(weather.wind_direction)}°</span>
 						</div>
 					{/if}
-					{#if soil}
+					{#if soil !== false}
 						<div class="soil">
 							<img src={soil} alt={t('alt.soilImage', $language)} />
 							<span class="label">{format(weather.humidity1)}%</span>
 						</div>
 					{/if}
-					{#if wind}
+					{#if wind !== false}
 						<div class="tree" style:margin-bottom={wind == treeWind3 ? '-30px' : 'none'}>
 							<img src={wind} alt={t('alt.windTree', $language)} />
 							<span class="label">{format(weather.wind_speed)} km/h</span>
 						</div>
 					{/if}
-					{#if pressure !== undefined}
+					{#if pressure !== false}
 						<div class="pressure">
 							<div class="lines">
 								<img src={pressureLine} alt={t('alt.pressureLine', $language)} />
@@ -200,7 +201,7 @@
 							<span class="label">{format(weather.pressure)} hPa</span>
 						</div>
 					{/if}
-					{#if thermometer}
+					{#if thermometer !== false}
 						<div class="thermometer">
 							<img src={thermometer} alt={t('weather.thermometer', $language)} />
 							<span class="label">{format(weather.temperature1)} °C</span>
@@ -208,7 +209,7 @@
 					{/if}
 				</div>
 			{/if}
-			{#if weather.description != null}
+			{#if weather?.description != null}
 				<FloatingButton
 					icon={ttsSpeaking ? speakWeatherButtonPressed : speakWeatherButton}
 					onclick={toggleSpeakWeather}
