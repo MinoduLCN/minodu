@@ -15,7 +15,7 @@
     "sync:do_update_backup": "curl -X GET http://137.184.46.216:3000/backup/create",
     "sync:do_update_database": "npx dotenv -- sh -c 'poetry --directory tools/sync run python sync_database.py http://137.184.46.216:3000/files/minodu_backend_backup.zip --destination=../../data/minodu-backend --user=$MYSQL_USER --password=$MYSQL_PASSWORD'",
     "sync:database": "npx dotenv -- sh -c 'poetry --directory tools/sync run python sync_database.py https://github.com/lutzer/minodu-installer/releases/download/dataset-v4/minodu_dataset.zip --destination=../../data/minodu-backend --user=$MYSQL_USER --password=$MYSQL_PASSWORD'",
-    "sync:rag_service": "sudo systemd-run --uid=pi --gid=pi --same-dir --unit=rag-sync --collect bash -lc 'npm run sync:rag'",
+    "sync:start_rag_service": "sudo systemd-run --uid=pi --gid=pi --same-dir --unit=rag-sync --collect bash -lc 'npm run sync:rag'",
     "sync:rag": "poetry --directory tools/sync run python sync_rag.py http://localhost/api/backend/v1/posts/ minodu-minodu-ai-services-1",
     "info:rag": "docker exec minodu-minodu-ai-services-1 python cli.py --list-docs"
   },
